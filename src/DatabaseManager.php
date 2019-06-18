@@ -228,6 +228,9 @@ class DatabaseManager
 
 		unset($params['driver']);
 
+		// Also don't pass the database name in otherwise PDO will try to autoconnect
+		unset($params['database']);
+
 		$this->connection = $this->dbFactory->getDriver($driver, $params);
 	}
 
