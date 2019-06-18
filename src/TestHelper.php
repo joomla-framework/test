@@ -18,64 +18,6 @@ use PHPUnit\Framework\TestCase;
 class TestHelper
 {
 	/**
-	 * Assigns mock callbacks to methods.
-	 *
-	 * This method assumes that the mock callback is named {mock}{method name}.
-	 *
-	 * @param   \PHPUnit_Framework_MockObject_MockObject  $mockObject  The mock object that the callbacks are being assigned to.
-	 * @param   TestCase                                  $test        The test.
-	 * @param   array                                     $array       An array of methods names to mock with callbacks.
-	 *
-	 * @return  void
-	 *
-	 * @since   1.0
-	 * @deprecated  2.0  Manage callbacks within your test cases
-	 */
-	public static function assignMockCallbacks(\PHPUnit_Framework_MockObject_MockObject $mockObject, TestCase $test, $array)
-	{
-		foreach ($array as $index => $method)
-		{
-			if (\is_callable($method))
-			{
-				$methodName = $index;
-				$callback   = $method;
-			}
-			else
-			{
-				$methodName = $method;
-				$callback   = array(\get_called_class(), 'mock' . $method);
-			}
-
-			$mockObject->expects($test->any())
-				->method($methodName)
-				->willReturnCallback($callback);
-		}
-	}
-
-	/**
-	 * Assigns mock values to methods.
-	 *
-	 * @param   \PHPUnit_Framework_MockObject_MockObject  $mockObject  The mock object.
-	 * @param   TestCase                                  $test        The test.
-	 * @param   array                                     $array       An associative array of methods to mock with return values:<br />
-	 *                                                                 string (method name) => mixed (return value)
-	 *
-	 * @return  void
-	 *
-	 * @since   1.0
-	 * @deprecated  2.0  Manage returns within your test cases
-	 */
-	public static function assignMockReturns(\PHPUnit_Framework_MockObject_MockObject $mockObject, TestCase $test, $array)
-	{
-		foreach ($array as $method => $return)
-		{
-			$mockObject->expects($test->any())
-				->method($method)
-				->willReturn($return);
-		}
-	}
-
-	/**
 	 * Helper method that gets a protected or private property in a class by relfection.
 	 *
 	 * @param   object  $object        The object from which to return the property value.
