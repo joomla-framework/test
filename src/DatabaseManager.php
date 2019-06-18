@@ -224,7 +224,7 @@ class DatabaseManager
 		// Prevent auto connection to the database as this may be called before the test database is created
 		$params['select'] = false;
 
-		$driver = $this->params['driver'];
+		$driver = $params['driver'];
 
 		unset($params['driver']);
 
@@ -256,7 +256,7 @@ class DatabaseManager
 			}
 
 			$this->params = [
-				'driver'   => $host,
+				'driver'   => $driver,
 				'host'     => $host,
 				'user'     => $user,
 				'password' => $password,
