@@ -6,14 +6,15 @@
     "homepage": "https://github.com/joomla-framework/test",
     "license": "GPL-2.0-or-later",
     "require": {
-        "php": "~7.2",
-        "phpunit/phpunit": "~8.2"
+        "php": "~7.2"
     },
     "require-dev": {
-        "joomla/database": "~2.0"
+        "joomla/database": "~2.0",
+        "phpunit/phpunit": "~8.2"
     },
     "suggest": {
-        "joomla/database": "To use the database test case, install joomla/database"
+        "joomla/database": "To use the database test case, install joomla/database",
+        "phpunit/phpunit": "To use the database test case, install phpunit/phpunit"
     },
     "autoload": {
         "psr-4": {
