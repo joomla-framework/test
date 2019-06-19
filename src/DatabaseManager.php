@@ -152,6 +152,12 @@ class DatabaseManager
 			);
 		}
 
+		// Skip for SQLite (TODO - Implement a dropDatabase method in the database driver)
+		if ($this->connection->getServerType() === 'sqlite')
+		{
+			return;
+		}
+
 		try
 		{
 			$this->connection->setQuery('DROP DATABASE ' . $this->connection->quoteName($this->getDbName()))->execute();
