@@ -246,17 +246,21 @@ class DatabaseManager
 	{
 		if (empty($this->params))
 		{
-			$driver   = getenv('JOOMLA_TEST_DB_DRIVER') ?: 'mysqli';
+			$driver   = getenv('JOOMLA_TEST_DB_DRIVER') ?: 'sqlite';
 			$host     = getenv('JOOMLA_TEST_DB_HOST');
 			$user     = getenv('JOOMLA_TEST_DB_USER');
 			$password = getenv('JOOMLA_TEST_DB_PASSWORD');
-			$database = getenv('JOOMLA_TEST_DB_DATABASE');
+			$database = getenv('JOOMLA_TEST_DB_DATABASE') ?: ':memory:';
 			$prefix   = getenv('JOOMLA_TEST_DB_PREFIX') ?: '';
 
 			// If using the SQLite driver and an in memory database, only the database is necessary, otherwise we need a host and user
 			if ($driver === 'sqlite')
 			{
-				if ($database !== ':memory:' && (empty($host) || empty($user) || empty($database)))
+				if ($database !== ':memory:' && (empty($host) || empty($user)))
+				{
+					throw new MissingDatabaseCredentials;
+				}
+				elseif (empty($host) || empty($user) || empty($database))
 				{
 					throw new MissingDatabaseCredentials;
 				}
