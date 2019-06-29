@@ -62,29 +62,21 @@ class TestHelper
 	 * $this->assertTrue(TestHelper::invoke($this->object, 'methodName', 123));
 	 * where 123 is the input parameter for your method
 	 *
-	 * @param   object  $object      The object on which to invoke the method.
-	 * @param   string  $methodName  The name of the method to invoke.
+	 * @param   object  $object         The object on which to invoke the method.
+	 * @param   string  $methodName     The name of the method to invoke.
+	 * @param   array   ...$methodArgs  The arguments to pass forward to the method being called
 	 *
 	 * @return  mixed
 	 *
 	 * @since   1.0
 	 * @throws  \ReflectionException
 	 */
-	public static function invoke($object, $methodName)
+	public static function invoke($object, $methodName, ...$methodArgs)
 	{
-		// Get the full argument list for the method.
-		$args = \func_get_args();
-
-		// Remove the method name from the argument list.
-		array_shift($args);
-		array_shift($args);
-
 		$method = new \ReflectionMethod($object, $methodName);
 		$method->setAccessible(true);
 
-		$result = $method->invokeArgs(\is_object($object) ? $object : null, $args);
-
-		return $result;
+		return $method->invokeArgs(\is_object($object) ? $object : null, $methodArgs);
 	}
 
 	/**
