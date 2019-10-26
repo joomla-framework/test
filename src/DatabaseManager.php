@@ -262,9 +262,9 @@ class DatabaseManager
 			// If using the SQLite driver and an in memory database, only the database is necessary, otherwise we need a host and user
 			if ($driver === 'sqlite')
 			{
-				if ($database !== ':memory:' && (empty($host) || empty($user)))
+				if ($database === ':memory:')
 				{
-					throw new MissingDatabaseCredentials;
+					// Everything is good
 				}
 				elseif (empty($host) || empty($user) || empty($database))
 				{
