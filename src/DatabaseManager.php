@@ -259,7 +259,7 @@ class DatabaseManager
 			$password = getenv('JOOMLA_TEST_DB_PASSWORD');
 			$database = getenv('JOOMLA_TEST_DB_DATABASE') ?: ':memory:';
 			$prefix   = getenv('JOOMLA_TEST_DB_PREFIX') ?: '';
-			$select   = getenv('JOOMLA_TEST_DB_SELECT') === 'true';
+			$select   = getenv('JOOMLA_TEST_DB_SELECT') === 'yes';
 
 			// If using the SQLite driver and an in memory database, only the database is necessary, otherwise we need a host and user
 			if ($driver === 'sqlite')
