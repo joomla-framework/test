@@ -227,15 +227,15 @@ class DatabaseManager
 	{
 		$params = $this->params;
 
-		// Prevent auto connection to the database as this may be called before the test database is created
-		$params['select'] = false;
-
 		$driver = $params['driver'];
 
 		unset($params['driver']);
 
-		// Also don't pass the database name in otherwise PDO will try to autoconnect
-		unset($params['database']);
+		// Only pass the database name if the select param is set to true
+		if (!$params['select'])
+		{
+			unset($params['database']);
+		}
 
 		$this->connection = $this->dbFactory->getDriver($driver, $params);
 	}
@@ -259,6 +259,7 @@ class DatabaseManager
 			$password = getenv('JOOMLA_TEST_DB_PASSWORD');
 			$database = getenv('JOOMLA_TEST_DB_DATABASE') ?: ':memory:';
 			$prefix   = getenv('JOOMLA_TEST_DB_PREFIX') ?: '';
+			$select   = getenv('JOOMLA_TEST_DB_SELECT') === 'true';
 
 			// If using the SQLite driver and an in memory database, only the database is necessary, otherwise we need a host and user
 			if ($driver === 'sqlite')
@@ -288,6 +289,7 @@ class DatabaseManager
 				'password' => $password,
 				'prefix'   => $prefix,
 				'database' => $database,
+				'select'   => $select,
 			];
 		}
 	}
