@@ -118,12 +118,18 @@ class DatabaseManager
 		}
 		catch (ExecutionFailureException $exception)
 		{
-			$stringToCheck = sprintf("Can't create database '%s'; database exists", $this->getDbName());
+			$stringsToCheck = [
+				sprintf("Can't create database '%s'; database exists", $this->getDbName()),
+				sprintf('database "%s" already exists', $this->getDbName()),
+			];
 
-			// If database exists, we're good
-			if (strpos($exception->getMessage(), $stringToCheck) !== false)
+			foreach ($stringsToCheck as $stringToCheck)
 			{
-				return;
+				// If database exists, we're good
+				if (strpos($exception->getMessage(), $stringToCheck) !== false)
+				{
+					return;
+				}
 			}
 
 			throw $exception;
