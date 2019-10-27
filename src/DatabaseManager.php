@@ -254,6 +254,7 @@ class DatabaseManager
 		{
 			$driver   = getenv('JOOMLA_TEST_DB_DRIVER') ?: 'sqlite';
 			$host     = getenv('JOOMLA_TEST_DB_HOST');
+			$port     = getenv('JOOMLA_TEST_DB_PORT') ?: null;
 			$user     = getenv('JOOMLA_TEST_DB_USER');
 			$password = getenv('JOOMLA_TEST_DB_PASSWORD');
 			$database = getenv('JOOMLA_TEST_DB_DATABASE') ?: ':memory:';
@@ -282,6 +283,7 @@ class DatabaseManager
 			$this->params = [
 				'driver'   => $driver,
 				'host'     => $host,
+				'port'     => $port,
 				'user'     => $user,
 				'password' => $password,
 				'prefix'   => $prefix,
