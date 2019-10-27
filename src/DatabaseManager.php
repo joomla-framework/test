@@ -158,6 +158,12 @@ class DatabaseManager
 			);
 		}
 
+		// Skip if the database was auto-selected
+		if ($this->params['select'])
+		{
+			return;
+		}
+
 		// Skip for SQLite (TODO - Implement a dropDatabase method in the database driver)
 		if ($this->connection->getServerType() === 'sqlite')
 		{
