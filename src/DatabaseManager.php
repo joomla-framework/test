@@ -170,6 +170,12 @@ class DatabaseManager
 			return;
 		}
 
+		// For SQL Server, we need to switch to another context first
+		if ($this->connection->getServerType() === 'mssql')
+		{
+			$this->connection->setQuery('USE [master]')->execute();
+		}
+
 		try
 		{
 			$this->connection->setQuery('DROP DATABASE ' . $this->connection->quoteName($this->getDbName()))->execute();
