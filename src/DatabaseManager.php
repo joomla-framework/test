@@ -176,12 +176,18 @@ class DatabaseManager
 		}
 		catch (ExecutionFailureException $exception)
 		{
-			$stringToCheck = sprintf("Can't drop database '%s'; database doesn't exist", $this->getDbName());
+			$stringsToCheck = [
+				sprintf("Can't drop database '%s'; database doesn't exist", $this->getDbName()),
+				sprintf("Cannot drop the database '%s', because it does not exist", $this->getDbName()),
+			];
 
-			// If database does not exist, we're good
-			if (strpos($exception->getMessage(), $stringToCheck) !== false)
+			foreach ($stringsToCheck as $stringToCheck)
 			{
-				return;
+				// If database exists, we're good
+				if (strpos($exception->getMessage(), $stringToCheck) !== false)
+				{
+					return;
+				}
 			}
 
 			throw $exception;
