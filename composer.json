@@ -10,7 +10,10 @@
     },
     "require-dev": {
         "joomla/database": "~2.0",
-        "phpunit/phpunit": "~8.2"
+        "phpunit/phpunit": "^8.5|^9.0"
+    },
+    "conflict": {
+        "joomla/database": "<2.0"
     },
     "suggest": {
         "joomla/database": "To use the database test case, install joomla/database",
