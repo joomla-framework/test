@@ -2,7 +2,7 @@
 /**
  * Part of the Joomla Framework Test Package
  *
- * @copyright  Copyright (C) 2005 - 2019 Open Source Matters, Inc. All rights reserved.
+ * @copyright  Copyright (C) 2005 - 2020 Open Source Matters, Inc. All rights reserved.
  * @license    GNU General Public License version 2 or later; see LICENSE
  */
 
@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Base test case for tests interacting with a database
  *
- * @since  __DEPLOY_VERSION__
+ * @since  2.0.0-beta
  */
 abstract class DatabaseTestCase extends TestCase
 {
@@ -24,7 +24,7 @@ abstract class DatabaseTestCase extends TestCase
 	 * The database connection for the test case
 	 *
 	 * @var    DatabaseInterface|null
-	 * @since  __DEPLOY_VERSION__
+	 * @since  2.0.0-beta
 	 */
 	protected static $connection;
 
@@ -32,7 +32,7 @@ abstract class DatabaseTestCase extends TestCase
 	 * The database manager
 	 *
 	 * @var    DatabaseManager|null
-	 * @since  __DEPLOY_VERSION__
+	 * @since  2.0.0-beta
 	 */
 	protected static $dbManager;
 
@@ -41,7 +41,7 @@ abstract class DatabaseTestCase extends TestCase
 	 *
 	 * @return  void
 	 *
-	 * @since   __DEPLOY_VERSION__
+	 * @since   2.0.0-beta
 	 */
 	public static function setUpBeforeClass(): void
 	{
@@ -71,7 +71,7 @@ abstract class DatabaseTestCase extends TestCase
 	 *
 	 * @return  void
 	 *
-	 * @since   __DEPLOY_VERSION__
+	 * @since   2.0.0-beta
 	 */
 	public static function tearDownAfterClass(): void
 	{
@@ -90,7 +90,7 @@ abstract class DatabaseTestCase extends TestCase
 	 *
 	 * @return  DatabaseManager
 	 *
-	 * @since   __DEPLOY_VERSION__
+	 * @since   2.0.0-beta
 	 */
 	protected static function createDatabaseManager(): DatabaseManager
 	{
@@ -104,7 +104,7 @@ abstract class DatabaseTestCase extends TestCase
 	 *
 	 * @return  DatabaseManager
 	 *
-	 * @since   __DEPLOY_VERSION__
+	 * @since   2.0.0-beta
 	 */
 	protected static function getDatabaseManager(): DatabaseManager
 	{

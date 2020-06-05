@@ -2,7 +2,7 @@
 /**
  * Part of the Joomla Framework Test Package
  *
- * @copyright  Copyright (C) 2005 - 2019 Open Source Matters, Inc. All rights reserved.
+ * @copyright  Copyright (C) 2005 - 2020 Open Source Matters, Inc. All rights reserved.
  * @license    GNU General Public License version 2 or later; see LICENSE
  */
 
@@ -17,7 +17,7 @@ use Joomla\Test\Exception\MissingDatabaseCredentials;
 /**
  * Helper class for building a database connection in the test environment
  *
- * @since  __DEPLOY_VERSION__
+ * @since  2.0.0-beta
  */
 class DatabaseManager
 {
@@ -25,7 +25,7 @@ class DatabaseManager
 	 * The database connection for the test environment
 	 *
 	 * @var    DatabaseInterface|null
-	 * @since  __DEPLOY_VERSION__
+	 * @since  2.0.0-beta
 	 */
 	protected $connection;
 
@@ -33,7 +33,7 @@ class DatabaseManager
 	 * The database factory
 	 *
 	 * @var    DatabaseFactory
-	 * @since  __DEPLOY_VERSION__
+	 * @since  2.0.0-beta
 	 */
 	protected $dbFactory;
 
@@ -45,14 +45,14 @@ class DatabaseManager
 	 * if need be by extending the `initialiseParams()` method.
 	 *
 	 * @var    array
-	 * @since  __DEPLOY_VERSION__
+	 * @since  2.0.0-beta
 	 */
 	protected $params = [];
 
 	/**
 	 * DatabaseManager constructor.
 	 *
-	 * @since    __DEPLOY_VERSION__
+	 * @since    2.0.0-beta
 	 */
 	public function __construct()
 	{
@@ -64,7 +64,7 @@ class DatabaseManager
 	 *
 	 * @return  void
 	 *
-	 * @since   __DEPLOY_VERSION__
+	 * @since   2.0.0-beta
 	 * @throws  DatabaseConnectionNotInitialised
 	 */
 	public function clearTables(): void
@@ -90,7 +90,7 @@ class DatabaseManager
 	 *
 	 * @return  void
 	 *
-	 * @since   __DEPLOY_VERSION__
+	 * @since   2.0.0-beta
 	 *
 	 * @throws  DatabaseConnectionNotInitialised
 	 * @throws  ExecutionFailureException
@@ -141,7 +141,7 @@ class DatabaseManager
 	 *
 	 * @return  void
 	 *
-	 * @since   __DEPLOY_VERSION__
+	 * @since   2.0.0-beta
 	 *
 	 * @throws  DatabaseConnectionNotInitialised
 	 * @throws  ExecutionFailureException
@@ -205,7 +205,7 @@ class DatabaseManager
 	 *
 	 * @return  DatabaseInterface
 	 *
-	 * @since   __DEPLOY_VERSION__
+	 * @since   2.0.0-beta
 	 */
 	public function getConnection(): DatabaseInterface
 	{
@@ -223,7 +223,7 @@ class DatabaseManager
 	 *
 	 * @return  string
 	 *
-	 * @since   __DEPLOY_VERSION__
+	 * @since   2.0.0-beta
 	 */
 	public function getDbName(): string
 	{
@@ -245,7 +245,7 @@ class DatabaseManager
 	 *
 	 * @return  void
 	 *
-	 * @since   __DEPLOY_VERSION__
+	 * @since   2.0.0-beta
 	 */
 	protected function createConnection(): void
 	{
@@ -269,7 +269,7 @@ class DatabaseManager
 	 *
 	 * @return  void
 	 *
-	 * @since   __DEPLOY_VERSION__
+	 * @since   2.0.0-beta
 	 * @throws  MissingDatabaseCredentials
 	 */
 	protected function initialiseParams(): void
