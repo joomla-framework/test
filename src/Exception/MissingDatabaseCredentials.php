@@ -11,7 +11,7 @@ namespace Joomla\Test\Exception;
 /**
  * Exception indicating the database credentials have not been set
  *
- * @since  2.0.0-beta
+ * @since  2.0.0
  */
 class MissingDatabaseCredentials extends \RuntimeException
 {

@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Base test case for tests interacting with a database
  *
- * @since  2.0.0-beta
+ * @since  2.0.0
  */
 abstract class DatabaseTestCase extends TestCase
 {
@@ -24,7 +24,7 @@ abstract class DatabaseTestCase extends TestCase
 	 * The database connection for the test case
 	 *
 	 * @var    DatabaseInterface|null
-	 * @since  2.0.0-beta
+	 * @since  2.0.0
 	 */
 	protected static $connection;
 
@@ -32,7 +32,7 @@ abstract class DatabaseTestCase extends TestCase
 	 * The database manager
 	 *
 	 * @var    DatabaseManager|null
-	 * @since  2.0.0-beta
+	 * @since  2.0.0
 	 */
 	protected static $dbManager;
 
@@ -41,7 +41,7 @@ abstract class DatabaseTestCase extends TestCase
 	 *
 	 * @return  void
 	 *
-	 * @since   2.0.0-beta
+	 * @since   2.0.0
 	 */
 	public static function setUpBeforeClass(): void
 	{
@@ -71,7 +71,7 @@ abstract class DatabaseTestCase extends TestCase
 	 *
 	 * @return  void
 	 *
-	 * @since   2.0.0-beta
+	 * @since   2.0.0
 	 */
 	public static function tearDownAfterClass(): void
 	{
@@ -90,7 +90,7 @@ abstract class DatabaseTestCase extends TestCase
 	 *
 	 * @return  DatabaseManager
 	 *
-	 * @since   2.0.0-beta
+	 * @since   2.0.0
 	 */
 	protected static function createDatabaseManager(): DatabaseManager
 	{
@@ -104,7 +104,7 @@ abstract class DatabaseTestCase extends TestCase
 	 *
 	 * @return  DatabaseManager
 	 *
-	 * @since   2.0.0-beta
+	 * @since   2.0.0
 	 */
 	protected static function getDatabaseManager(): DatabaseManager
 	{

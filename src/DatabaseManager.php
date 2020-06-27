@@ -17,7 +17,7 @@ use Joomla\Test\Exception\MissingDatabaseCredentials;
 /**
  * Helper class for building a database connection in the test environment
  *
- * @since  2.0.0-beta
+ * @since  2.0.0
  */
 class DatabaseManager
 {
@@ -25,7 +25,7 @@ class DatabaseManager
 	 * The database connection for the test environment
 	 *
 	 * @var    DatabaseInterface|null
-	 * @since  2.0.0-beta
+	 * @since  2.0.0
 	 */
 	protected $connection;
 
@@ -33,7 +33,7 @@ class DatabaseManager
 	 * The database factory
 	 *
 	 * @var    DatabaseFactory
-	 * @since  2.0.0-beta
+	 * @since  2.0.0
 	 */
 	protected $dbFactory;
 
@@ -45,14 +45,14 @@ class DatabaseManager
 	 * if need be by extending the `initialiseParams()` method.
 	 *
 	 * @var    array
-	 * @since  2.0.0-beta
+	 * @since  2.0.0
 	 */
 	protected $params = [];
 
 	/**
 	 * DatabaseManager constructor.
 	 *
-	 * @since    2.0.0-beta
+	 * @since    2.0.0
 	 */
 	public function __construct()
 	{
@@ -64,7 +64,7 @@ class DatabaseManager
 	 *
 	 * @return  void
 	 *
-	 * @since   2.0.0-beta
+	 * @since   2.0.0
 	 * @throws  DatabaseConnectionNotInitialised
 	 */
 	public function clearTables(): void
@@ -90,7 +90,7 @@ class DatabaseManager
 	 *
 	 * @return  void
 	 *
-	 * @since   2.0.0-beta
+	 * @since   2.0.0
 	 *
 	 * @throws  DatabaseConnectionNotInitialised
 	 * @throws  ExecutionFailureException
@@ -141,7 +141,7 @@ class DatabaseManager
 	 *
 	 * @return  void
 	 *
-	 * @since   2.0.0-beta
+	 * @since   2.0.0
 	 *
 	 * @throws  DatabaseConnectionNotInitialised
 	 * @throws  ExecutionFailureException
@@ -205,7 +205,7 @@ class DatabaseManager
 	 *
 	 * @return  DatabaseInterface
 	 *
-	 * @since   2.0.0-beta
+	 * @since   2.0.0
 	 */
 	public function getConnection(): DatabaseInterface
 	{
@@ -223,7 +223,7 @@ class DatabaseManager
 	 *
 	 * @return  string
 	 *
-	 * @since   2.0.0-beta
+	 * @since   2.0.0
 	 */
 	public function getDbName(): string
 	{
@@ -245,7 +245,7 @@ class DatabaseManager
 	 *
 	 * @return  void
 	 *
-	 * @since   2.0.0-beta
+	 * @since   2.0.0
 	 */
 	protected function createConnection(): void
 	{
@@ -269,7 +269,7 @@ class DatabaseManager
 	 *
 	 * @return  void
 	 *
-	 * @since   2.0.0-beta
+	 * @since   2.0.0
 	 * @throws  MissingDatabaseCredentials
 	 */
 	protected function initialiseParams(): void

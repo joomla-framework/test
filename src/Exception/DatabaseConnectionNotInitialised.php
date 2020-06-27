@@ -11,7 +11,7 @@ namespace Joomla\Test\Exception;
 /**
  * Exception indicating the database connection has not yet been initialized
  *
- * @since  2.0.0-beta
+ * @since  2.0.0
  */
 class DatabaseConnectionNotInitialised extends \RuntimeException
 {
