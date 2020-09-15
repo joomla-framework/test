@@ -1,4 +1,4 @@
-# The Test Package
+# The Test Package [![Build Status](https://ci.joomla.org/api/badges/joomla-framework/test/status.svg)](https://ci.joomla.org/joomla-framework/test)
 
 [![Latest Stable Version](https://poser.pugx.org/joomla/test/v/stable)](https://packagist.org/packages/joomla/test)
 [![Total Downloads](https://poser.pugx.org/joomla/test/downloads)](https://packagist.org/packages/joomla/test)
