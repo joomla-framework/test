@@ -18,10 +18,10 @@ use PHPUnit\Framework\TestCase;
 class TestHelper
 {
 	/**
-	 * Helper method that gets a protected or private property in a class by relfection.
+	 * Helper method that gets a protected or private property in a class by reflection.
 	 *
-	 * @param   object  $object        The object from which to return the property value.
-	 * @param   string  $propertyName  The name of the property to return.
+	 * @param   string|object  $objectOrClass  The object from which to return the property value.
+	 * @param   string         $propertyName   The name of the property to return.
 	 *
 	 * @return  mixed  The value of the property.
 	 *
@@ -29,9 +29,9 @@ class TestHelper
 	 * @throws  \InvalidArgumentException if property not available.
 	 * @throws  \ReflectionException
 	 */
-	public static function getValue($object, $propertyName)
+	public static function getValue($objectOrClass, $propertyName)
 	{
-		$refl = new \ReflectionClass($object);
+		$refl = new \ReflectionClass($objectOrClass);
 
 		// First check if the property is easily accessible.
 		if ($refl->hasProperty($propertyName))
@@ -39,19 +39,20 @@ class TestHelper
 			$property = $refl->getProperty($propertyName);
 			$property->setAccessible(true);
 
-			return $property->getValue($object);
+			return $property->getValue($objectOrClass);
 		}
 
 		// Hrm, maybe dealing with a private property in the parent class.
-		if (get_parent_class($object))
+		if (get_parent_class($objectOrClass))
 		{
-			$property = new \ReflectionProperty(get_parent_class($object), $propertyName);
+			$property = new \ReflectionProperty(get_parent_class($objectOrClass), $propertyName);
 			$property->setAccessible(true);
 
-			return $property->getValue($object);
+			return $property->getValue($objectOrClass);
 		}
 
-		throw new \InvalidArgumentException(sprintf('Invalid property [%s] for class [%s]', $propertyName, \get_class($object)));
+		$class = \is_string($objectOrClass) ? $objectOrClass : \get_class($objectOrClass);
+		throw new \InvalidArgumentException(sprintf('Invalid property [%s] for class [%s]', $propertyName, $class));
 	}
 
 	/**
