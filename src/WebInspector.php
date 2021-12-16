@@ -19,25 +19,33 @@ use Joomla\Application\AbstractWebApplication;
 class WebInspector extends AbstractWebApplication
 {
 	/**
-	 * @var     boolean  True to mimic the headers already being sent.
+	 * True to mimic the headers already being sent.
+	 *
+	 * @var     boolean
 	 * @since   1.0
 	 */
 	public static $headersSent = false;
 
 	/**
-	 * @var     boolean  True to mimic the connection being alive.
+	 * True to mimic the connection being alive.
+	 *
+	 * @var     boolean
 	 * @since   1.0
 	 */
 	public static $connectionAlive = true;
 
 	/**
-	 * @var     array  List of sent headers for inspection. array($string, $replace, $code).
+	 * List of sent headers for inspection. array($string, $replace, $code).
+	 *
+	 * @var     array
 	 * @since   1.0
 	 */
 	public $headers = array();
 
 	/**
-	 * @var     integer  The exit code if the application was closed otherwise null.
+	 * The exit code if the application was closed otherwise null.
+	 *
+	 * @var     integer
 	 * @since   1.0
 	 */
 	public $closed;
