@@ -301,7 +301,7 @@ steps:
   image: joomlaprojects/docker-images:php8.0
   commands:
   - php -v
-  - composer update --ignore-platform-reqs
+  - composer update --prefer-stable
   volumes:
   - name: composer-cache
     path: /tmp/composer-cache
@@ -330,7 +330,7 @@ steps:
   image: joomlaprojects/docker-images:php8.1
   commands:
   - php -v
-  - composer update --ignore-platform-reqs
+  - composer update --prefer-stable
   volumes:
   - name: composer-cache
     path: /tmp/composer-cache
@@ -348,6 +348,6 @@ volumes:
 
 ---
 kind: signature
-hmac: e3affc311774adf00c57e50320d30e5777e622cfd6c19325216f609cfd454970
+hmac: b4dd12c57a84baff111938c76c2733d8dcdb97ae85c10b7f44eec15298dc6a62
 
 ...
