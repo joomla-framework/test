@@ -13,6 +13,8 @@ if (version_compare($versionClass::id(), '7.0', '>='))
 {
 	/**
 	 * Compatibility test case used for PHPUnit 7.x and later
+	 *
+	 * @since 1.4.0
 	 */
 	abstract class TestCase extends PhpUnit7TestCase
 	{
@@ -22,6 +24,8 @@ else
 {
 	/**
 	 * Compatibility test case used for PHPUnit 6.x and earlier
+	 *
+	 * @since 1.4.0
 	 */
 	abstract class TestCase extends PhpUnit6TestCase
 	{

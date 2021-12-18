@@ -10,11 +10,15 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Compatibility test case used for PHPUnit 6.x and earlier
+ *
+ * @since 1.4.0
  */
 abstract class PhpUnit6TestCase extends TestCase
 {
 	/**
 	 * This method is called before the first test of this test class is run.
+	 *
+	 * @return void
 	 */
 	public static function setUpBeforeClass()
 	{
@@ -23,6 +27,8 @@ abstract class PhpUnit6TestCase extends TestCase
 
 	/**
 	 * This method is called after the last test of this test class is run.
+	 *
+	 * @return void
 	 */
 	public static function tearDownAfterClass()
 	{
@@ -31,6 +37,8 @@ abstract class PhpUnit6TestCase extends TestCase
 
 	/**
 	 * Sets up the fixture, for example, open a network connection.
+	 *
+	 * @return void
 	 * This method is called before a test is executed.
 	 */
 	protected function setUp()
@@ -41,6 +49,8 @@ abstract class PhpUnit6TestCase extends TestCase
 	/**
 	 * Tears down the fixture, for example, close a network connection.
 	 * This method is called after a test is executed.
+	 *
+	 * @return void
 	 */
 	protected function tearDown()
 	{
@@ -49,6 +59,8 @@ abstract class PhpUnit6TestCase extends TestCase
 
 	/**
 	 * Compatibility method for `setUpBeforeClass()`
+	 *
+	 * @return void
 	 */
 	protected static function doSetUpBeforeClass()
 	{
@@ -57,6 +69,8 @@ abstract class PhpUnit6TestCase extends TestCase
 
 	/**
 	 * Compatibility method for `tearDownAfterClass()`
+	 *
+	 * @return void
 	 */
 	protected static function doTearDownAfterClass()
 	{
@@ -65,6 +79,8 @@ abstract class PhpUnit6TestCase extends TestCase
 
 	/**
 	 * Compatibility method for `setUp()`
+	 *
+	 * @return void
 	 */
 	protected function doSetUp()
 	{
@@ -73,6 +89,8 @@ abstract class PhpUnit6TestCase extends TestCase
 
 	/**
 	 * Compatibility method for `tearDown()`
+	 *
+	 * @return void
 	 */
 	protected function doTearDown()
 	{
