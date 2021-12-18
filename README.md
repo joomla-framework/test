@@ -13,8 +13,13 @@ With version 7.0, PHPUnit added return type declarations to its TestCase class.
 Tests running fine PHP < 7.2 will not work on current PHP versions,
 because the signatures do not match.
 
-This package provides a comatibility layer catering for that issue since version 1.4.0.
-Just extend your test classes from Joomla\Test\TestCase instead of PHPUnit\Framework\TestCase.
+This package provides a comatibility layer catering for that issue since version 1.4.2.
+Just extend your test classes from
+* `Joomla\Test\TestCase` instead of `PHPUnit\Framework\TestCase` and use method names
+* `doSetUp()` instead of `setUp()`,
+* `doTearDown()` instead of `tearDown()`,
+* `doSetUpBeforeClass()` instead of `setUpBeforeClass()` and
+* `doTearDownAfterClass()` instead of `tearDownAfterClass()`.
 
 ## TestHelper
 
@@ -174,12 +179,12 @@ class FooTest extends \PHPUnit_Framework_TestCase
 
 ## Installation via Composer
 
-Add `"joomla/test": "^1.4.0"` to the require-dev block in your composer.json and then run `composer install`.
+Add `"joomla/test": "^1.4.2"` to the require-dev block in your composer.json and then run `composer install`.
 
 ```json
 {
 	"require-dev": {
-		"joomla/test": "^1.4.0"
+		"joomla/test": "^1.4.2"
 	}
 }
 ```
@@ -187,5 +192,5 @@ Add `"joomla/test": "^1.4.0"` to the require-dev block in your composer.json and
 Alternatively, you can simply run the following from the command line:
 
 ```sh
-composer require -- dev joomla/test "^1.4.0"
+composer require -- dev joomla/test "^1.4.2"
 ```
