@@ -5,7 +5,16 @@
 [![Latest Unstable Version](https://poser.pugx.org/joomla/test/v/unstable)](https://packagist.org/packages/joomla/test)
 [![License](https://poser.pugx.org/joomla/test/license)](https://packagist.org/packages/joomla/test)
 
-This package is a collection of tools that make some of the jobs of unit testing easier.
+This package is a collection of tools that make some jobs of unit testing easier.
+
+## TestCase
+
+With version 7.0, PHPUnit added return type declarations to its TestCase class.
+Tests running fine PHP < 7.2 will not work on current PHP versions,
+because the signatures do not match.
+
+This package provides a comatibility layer catering for that issue since version 1.4.0.
+Just extend your test classes from Joomla\Test\TestCase instead of PHPUnit\Framework\TestCase.
 
 ## TestHelper
 
@@ -165,12 +174,12 @@ class FooTest extends \PHPUnit_Framework_TestCase
 
 ## Installation via Composer
 
-Add `"joomla/test": "~1.0"` to the require block in your composer.json and then run `composer install`.
+Add `"joomla/test": "^1.4.0"` to the require-dev block in your composer.json and then run `composer install`.
 
 ```json
 {
-	"require": {
-		"joomla/test": "~1.0"
+	"require-dev": {
+		"joomla/test": "^1.4.0"
 	}
 }
 ```
@@ -178,5 +187,5 @@ Add `"joomla/test": "~1.0"` to the require block in your composer.json and then 
 Alternatively, you can simply run the following from the command line:
 
 ```sh
-composer require joomla/test "~1.0"
+composer require -- dev joomla/test "^1.4.0"
 ```
