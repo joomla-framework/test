@@ -22,7 +22,7 @@ abstract class PhpUnit6TestCase extends TestCase
 	 */
 	public static function setUpBeforeClass()
 	{
-		self::doSetUpBeforeClass();
+		static::doSetUpBeforeClass();
 	}
 
 	/**
@@ -32,7 +32,7 @@ abstract class PhpUnit6TestCase extends TestCase
 	 */
 	public static function tearDownAfterClass()
 	{
-		self::doTearDownAfterClass();
+		static::doTearDownAfterClass();
 	}
 
 	/**
