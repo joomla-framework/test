@@ -9,7 +9,7 @@
             "composer update",
             "composer require phpmd/phpmd phpstan/phpstan"
          ],
-         "image": "joomlaprojects/docker-images:php7.4",
+         "image": "joomlaprojects/docker-images:php8.1",
          "name": "composer",
          "volumes": [
             {
@@ -26,7 +26,7 @@
          "depends": [
             "composer"
          ],
-         "image": "joomlaprojects/docker-images:php7.4",
+         "image": "joomlaprojects/docker-images:php8.1",
          "name": "phpcs"
       },
       {
@@ -41,7 +41,7 @@
             "composer"
          ],
          "failure": "ignore",
-         "image": "joomlaprojects/docker-images:php7.4",
+         "image": "joomlaprojects/docker-images:php8.1",
          "name": "phpmd"
       },
       {
@@ -52,7 +52,7 @@
             "composer"
          ],
          "failure": "ignore",
-         "image": "joomlaprojects/docker-images:php7.4",
+         "image": "joomlaprojects/docker-images:php8.1",
          "name": "phpstan"
       },
       {
@@ -63,7 +63,7 @@
             "composer"
          ],
          "failure": "ignore",
-         "image": "joomlaprojects/docker-images:php7.4",
+         "image": "joomlaprojects/docker-images:php8.1",
          "name": "phploc"
       },
       {
@@ -74,7 +74,7 @@
             "composer"
          ],
          "failure": "ignore",
-         "image": "joomlaprojects/docker-images:php7.4",
+         "image": "joomlaprojects/docker-images:php8.1",
          "name": "phpcpd"
       }
    ],
@@ -89,6 +89,6 @@
 }
 ---
 kind: signature
-hmac: 6ead9ff74e03f8c82d6613cad3a6e8b2f07e2cfc46017937172f7f0266390a22
+hmac: 8df53934dd18dd004bff5af57654e47807bef371554f13d23d2b378398fd0f70
 
 ...

@@ -47,7 +47,7 @@ local pipeline(name, phpversion, params) = {
         steps: [
             {
                 name: "composer",
-                image: "joomlaprojects/docker-images:php7.4",
+                image: "joomlaprojects/docker-images:php8.1",
                 volumes: volumes,
                 commands: [
                     "php -v",
@@ -57,7 +57,7 @@ local pipeline(name, phpversion, params) = {
             },
             {
                 name: "phpcs",
-                image: "joomlaprojects/docker-images:php7.4",
+                image: "joomlaprojects/docker-images:php8.1",
                 depends: [ "composer" ],
                 commands: [
                     "vendor/bin/phpcs --config-set installed_paths vendor/joomla/coding-standards",
@@ -66,7 +66,7 @@ local pipeline(name, phpversion, params) = {
             },
             {
                 name: "phpmd",
-                image: "joomlaprojects/docker-images:php7.4",
+                image: "joomlaprojects/docker-images:php8.1",
                 depends: [ "composer" ],
                 failure: "ignore",
                 commands: [
@@ -79,7 +79,7 @@ local pipeline(name, phpversion, params) = {
             },
             {
                 name: "phpstan",
-                image: "joomlaprojects/docker-images:php7.4",
+                image: "joomlaprojects/docker-images:php8.1",
                 depends: [ "composer" ],
                 failure: "ignore",
                 commands: [
@@ -88,7 +88,7 @@ local pipeline(name, phpversion, params) = {
             },
             {
                 name: "phploc",
-                image: "joomlaprojects/docker-images:php7.4",
+                image: "joomlaprojects/docker-images:php8.1",
                 depends: [ "composer" ],
                 failure: "ignore",
                 commands: [
@@ -97,7 +97,7 @@ local pipeline(name, phpversion, params) = {
             },
             {
                 name: "phpcpd",
-                image: "joomlaprojects/docker-images:php7.4",
+                image: "joomlaprojects/docker-images:php8.1",
                 depends: [ "composer" ],
                 failure: "ignore",
                 commands: [
