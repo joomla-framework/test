@@ -49,67 +49,7 @@ volumes:
     path: /tmp/composer-cache
   name: composer-cache
 ---
-kind: pipeline
-name: PHP 8.1 lowest
-steps:
-- commands:
-  - php -v
-  - composer update --prefer-stable --prefer-lowest
-  image: joomlaprojects/docker-images:php8.1
-  name: composer
-  volumes:
-  - name: composer-cache
-    path: /tmp/composer-cache
-- commands:
-  - vendor/bin/phpunit
-  image: joomlaprojects/docker-images:php8.1
-  name: PHPUnit
-volumes:
-- host:
-    path: /tmp/composer-cache
-  name: composer-cache
----
-kind: pipeline
-name: PHP 8.1
-steps:
-- commands:
-  - php -v
-  - composer update --prefer-stable
-  image: joomlaprojects/docker-images:php8.1
-  name: composer
-  volumes:
-  - name: composer-cache
-    path: /tmp/composer-cache
-- commands:
-  - vendor/bin/phpunit
-  image: joomlaprojects/docker-images:php8.1
-  name: PHPUnit
-volumes:
-- host:
-    path: /tmp/composer-cache
-  name: composer-cache
----
-kind: pipeline
-name: PHP 8.2
-steps:
-- commands:
-  - php -v
-  - composer update --prefer-stable
-  image: joomlaprojects/docker-images:php8.2
-  name: composer
-  volumes:
-  - name: composer-cache
-    path: /tmp/composer-cache
-- commands:
-  - vendor/bin/phpunit
-  image: joomlaprojects/docker-images:php8.2
-  name: PHPUnit
-volumes:
-- host:
-    path: /tmp/composer-cache
-  name: composer-cache
----
 kind: signature
-hmac: f2699944b94a340340b65554115557ab8eed8600fe4838eec7d11317b43e4640
+hmac: 16deb0bb7f519b60e59f79cfadd8828ca8aaad4472f39eb8a9080fdbbd898d88
 
 ...

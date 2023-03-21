@@ -99,8 +99,5 @@ local pipeline(name, phpversion, params) = {
                 ]
             }
         ]
-    },
-    pipeline("8.1 lowest", "8.1", "--prefer-stable --prefer-lowest"),
-    pipeline("8.1", "8.1", "--prefer-stable"),
-    pipeline("8.2", "8.2", "--prefer-stable"),
+    }
 ]
