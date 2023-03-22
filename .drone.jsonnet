@@ -25,7 +25,7 @@ local composer(phpversion, params) = {
 local phpunit(phpversion) = {
     name: "PHPUnit",
     image: "joomlaprojects/docker-images:php" + phpversion,
-    [if phpversion == "8.2" then "failure"]: "ignore",
+    [if phpversion == "8.3" then "failure"]: "ignore",
     commands: ["vendor/bin/phpunit"]
 };
 
@@ -51,8 +51,7 @@ local pipeline(name, phpversion, params) = {
                 volumes: volumes,
                 commands: [
                     "php -v",
-                    "composer update",
-                    "composer require phpmd/phpmd phpstan/phpstan"
+                    "composer update"
                 ]
             },
             {
@@ -60,21 +59,16 @@ local pipeline(name, phpversion, params) = {
                 image: "joomlaprojects/docker-images:php8.1",
                 depends: [ "composer" ],
                 commands: [
-                    "vendor/bin/phpcs --config-set installed_paths vendor/joomla/coding-standards",
                     "vendor/bin/phpcs --standard=ruleset.xml src/"
                 ]
             },
             {
-                name: "phpmd",
-                image: "joomlaprojects/docker-images:php8.1",
+                name: "phan",
+                image: "joomlaprojects/docker-images:php8.1-ast",
                 depends: [ "composer" ],
                 failure: "ignore",
                 commands: [
-                    "vendor/bin/phpmd src text cleancode",
-                    "vendor/bin/phpmd src text codesize",
-                    "vendor/bin/phpmd src text controversial",
-                    "vendor/bin/phpmd src text design",
-                    "vendor/bin/phpmd src text unusedcode",
+                    "vendor/bin/phan"
                 ]
             },
             {
