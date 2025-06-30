@@ -1,0 +1,62 @@
+name: CI Joomla Framework
+
+on:
+    push:
+    pull_request:
+    schedule:
+        - cron: 15 2 * * 1
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    composer:
+        name: Install PHP dependencies
+        runs-on: ubuntu-latest
+        container: joomlaprojects/docker-images:php8.1
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/cache@v4
+              id: cache-php
+              with:
+                  path: vendor
+                  key: ${{ runner.os }}-composer-${{ hashFiles('composer.json') }}
+            - name: Install PHP dependencies
+              if: steps.cache-php.outputs.cache-hit != 'true'
+              run: |
+                  git config --global --add safe.directory $GITHUB_WORKSPACE
+                  composer config --global home
+                  composer install --no-progress --ignore-platform-reqs
+
+    code-style-php:
+        name: Check PHP code style
+        runs-on: ubuntu-latest
+        container: joomlaprojects/docker-images:php8.1
+        needs: [composer]
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/cache/restore@v4
+              with:
+                  path: vendor
+                  key: ${{ runner.os }}-composer-${{ hashFiles('composer.json') }}
+            - name: Check PHP code style
+              env:
+                  PHP_CS_FIXER_IGNORE_ENV: true
+              run: ./vendor/bin/phpcs --standard=ruleset.xml src/
+
+    phpstan:
+        name: Run PHPstan
+        runs-on: ubuntu-latest
+        container: joomlaprojects/docker-images:php8.4
+        needs: [code-style-php]
+        continue-on-error: true
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/cache/restore@v4
+              with:
+                  path: vendor
+                  key: ${{ runner.os }}-composer-${{ hashFiles('composer.json') }}
+            - name: Run PHPstan
+              run: |
+                  ./vendor/bin/phpstan --error-format=github
