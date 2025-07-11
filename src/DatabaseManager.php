@@ -269,11 +269,11 @@ class DatabaseManager
             if ($driver === 'sqlite') {
                 if ($database === ':memory:') {
                     // Everything is good
-                } elseif (empty($host) || empty($user) || empty($database)) {
+                } elseif (empty($host) || empty($user)) {
                     throw new MissingDatabaseCredentials();
                 }
             } else {
-                if (empty($host) || empty($user) || empty($database)) {
+                if (empty($host) || empty($user)) {
                     throw new MissingDatabaseCredentials();
                 }
             }
