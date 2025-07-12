@@ -1,7 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Call to function is_object\(\) with object will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
+			message: "#^Else branch is unreachable because ternary operator condition is always true\\.$#"
 			count: 1
 			path: src/TestHelper.php
