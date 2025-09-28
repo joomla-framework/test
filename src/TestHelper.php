@@ -37,16 +37,12 @@ class TestHelper
         // First check if the property is easily accessible.
         if ($refl->hasProperty($propertyName)) {
             $property = $refl->getProperty($propertyName);
-            $property->setAccessible(true);
-
             return $property->getValue($objectOrClass);
         }
 
         // Hrm, maybe dealing with a private property in the parent class.
         if (get_parent_class($objectOrClass)) {
             $property = new \ReflectionProperty(get_parent_class($objectOrClass), $propertyName);
-            $property->setAccessible(true);
-
             return $property->getValue($objectOrClass);
         }
 
@@ -74,7 +70,6 @@ class TestHelper
     public static function invoke($object, $methodName, ...$methodArgs)
     {
         $method = new \ReflectionMethod($object, $methodName);
-        $method->setAccessible(true);
 
         return $method->invokeArgs(\is_object($object) ? $object : null, $methodArgs);
     }
@@ -98,14 +93,10 @@ class TestHelper
         // First check if the property is easily accessible.
         if ($refl->hasProperty($propertyName)) {
             $property = $refl->getProperty($propertyName);
-            $property->setAccessible(true);
-
             $property->setValue($object, $value);
         } elseif (get_parent_class($object)) {
             // Hrm, maybe dealing with a private property in the parent class.
             $property = new \ReflectionProperty(get_parent_class($object), $propertyName);
-            $property->setAccessible(true);
-
             $property->setValue($object, $value);
         }
     }
