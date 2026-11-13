@@ -24,5 +24,10 @@
             "Joomla\\Test\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Joomla\\Test\\Tests\\": "Tests/"
+        }
+    },
     "minimum-stability": "dev"
 }
