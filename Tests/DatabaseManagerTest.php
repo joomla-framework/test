@@ -11,6 +11,7 @@ use Joomla\Database\DatabaseInterface;
 use Joomla\Test\DatabaseManager;
 use Joomla\Test\Exception\DatabaseConnectionNotInitialised;
 use Joomla\Test\Exception\MissingDatabaseCredentials;
+use Joomla\Test\Tests\Stubs\PresetDatabaseManager;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -30,6 +31,7 @@ class DatabaseManagerTest extends TestCase
         'JOOMLA_TEST_DB_DATABASE',
         'JOOMLA_TEST_DB_PREFIX',
         'JOOMLA_TEST_DB_SELECT',
+        'JOOMLA_TEST_DB_ALLOW_DESTRUCTIVE',
     ];
 
     /**
@@ -119,5 +121,118 @@ class DatabaseManagerTest extends TestCase
         $manager->clearTables();
 
         $this->assertSame(0, (int) $connection->setQuery('SELECT COUNT(*) FROM ' . $connection->quoteName('foo'))->loadResult());
+    }
+
+    public function testDropDatabaseWarnsBeforeDroppingADatabaseThatDoesNotLookLikeATestDatabase(): void
+    {
+        $queries = [];
+        $manager = new PresetDatabaseManager(['database' => 'production'], $this->createServerConnection($queries));
+
+        $deprecations = $this->collectDeprecations(fn () => $manager->dropDatabase());
+
+        $this->assertCount(1, $deprecations);
+        $this->assertStringContainsString('dropDatabase() is destroying data in the database "production"', $deprecations[0]);
+        $this->assertStringContainsString('JOOMLA_TEST_DB_ALLOW_DESTRUCTIVE=yes', $deprecations[0]);
+        $this->assertCount(1, $queries, 'The database is still dropped in 4.x');
+    }
+
+    public function testDropDatabaseDoesNotWarnForATestDatabase(): void
+    {
+        $queries = [];
+        $manager = new PresetDatabaseManager(['database' => 'Joomla_TEST_db'], $this->createServerConnection($queries));
+
+        $this->assertSame([], $this->collectDeprecations(fn () => $manager->dropDatabase()));
+        $this->assertCount(1, $queries);
+    }
+
+    public function testDestructiveOperationsCanBeConfirmedThroughTheEnvironment(): void
+    {
+        putenv('JOOMLA_TEST_DB_ALLOW_DESTRUCTIVE=yes');
+
+        $queries = [];
+        $manager = new PresetDatabaseManager(['database' => 'production'], $this->createServerConnection($queries));
+
+        $this->assertSame([], $this->collectDeprecations(fn () => $manager->dropDatabase()));
+        $this->assertSame([], $this->collectDeprecations(fn () => $manager->clearTables()));
+    }
+
+    public function testClearTablesWarnsBeforeEmptyingADatabaseThatDoesNotLookLikeATestDatabase(): void
+    {
+        $queries = [];
+        $manager = new PresetDatabaseManager(['database' => 'production'], $this->createServerConnection($queries));
+
+        $deprecations = $this->collectDeprecations(fn () => $manager->clearTables());
+
+        $this->assertCount(1, $deprecations);
+        $this->assertStringContainsString('clearTables() is destroying data in the database "production"', $deprecations[0]);
+    }
+
+    public function testClearTablesDoesNotWarnForAnInMemorySqliteDatabase(): void
+    {
+        $manager = new DatabaseManager();
+        $manager->getConnection();
+
+        $this->assertSame([], $this->collectDeprecations(fn () => $manager->clearTables()));
+    }
+
+    public function testDumpingTheManagerMasksThePassword(): void
+    {
+        $queries = [];
+        $manager = new PresetDatabaseManager(['password' => 's3cr3t-pa55'], $this->createServerConnection($queries));
+
+        $dump = print_r($manager, true);
+
+        $this->assertStringNotContainsString('s3cr3t-pa55', $dump);
+        $this->assertStringContainsString('********', $dump);
+        $this->assertStringContainsString('joomla_test', $dump);
+    }
+
+    /**
+     * Creates a connection mock for a database server that records the executed queries
+     *
+     * @param   string[]  $queries  Receives the executed queries
+     */
+    private function createServerConnection(array &$queries): DatabaseInterface
+    {
+        $connection = $this->createMock(DatabaseInterface::class);
+        $connection->method('getServerType')->willReturn('mysql');
+        $connection->method('getTableList')->willReturn([]);
+        $connection->method('quoteName')->willReturnCallback(fn ($name) => '`' . $name . '`');
+        $connection->method('setQuery')->willReturnCallback(
+            function ($query) use (&$queries, $connection) {
+                $queries[] = $query;
+
+                return $connection;
+            }
+        );
+
+        return $connection;
+    }
+
+    /**
+     * Runs the callback and returns the messages of the deprecations it triggers
+     *
+     * @return  string[]
+     */
+    private function collectDeprecations(callable $callback): array
+    {
+        $messages = [];
+
+        set_error_handler(
+            function (int $errno, string $errstr) use (&$messages): bool {
+                $messages[] = $errstr;
+
+                return true;
+            },
+            E_USER_DEPRECATED
+        );
+
+        try {
+            $callback();
+        } finally {
+            restore_error_handler();
+        }
+
+        return $messages;
     }
 }
