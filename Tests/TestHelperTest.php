@@ -110,6 +110,13 @@ class TestHelperTest extends TestCase
         TestHelper::setValue(new GrandChildClass(), 'unknown', 'value');
     }
 
+    public function testSetValueRequiresAnObject(): void
+    {
+        $this->expectException(\TypeError::class);
+
+        TestHelper::setValue(ChildClass::class, 'staticProperty', 'changed');
+    }
+
     public function testInvokeCallsAProtectedMethodWithArguments(): void
     {
         $this->assertSame(['a', 'b'], TestHelper::invoke(new ChildClass(), 'protectedMethod', 'a', 'b'));

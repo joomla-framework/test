@@ -145,6 +145,8 @@ This method is useful for injecting values into an object for the purpose of tes
 
 The `TestHelper::invoke` method allow you to invoke any protected or private method. After specifying the object and the method name, any remaining arguments are passed to the method being invoked.
 
+To invoke a static method, pass the class name instead of an object.
+
 ```php
 use Joomla\Test\TestHelper;
 

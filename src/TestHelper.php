@@ -32,7 +32,7 @@ class TestHelper
      * @throws  \InvalidArgumentException if property not available, or not static when a class name is given.
      * @throws  \ReflectionException if the class does not exist.
      */
-    public static function getValue($objectOrClass, $propertyName)
+    public static function getValue(object|string $objectOrClass, string $propertyName): mixed
     {
         $property = self::findProperty($objectOrClass, $propertyName);
 
@@ -57,16 +57,16 @@ class TestHelper
      * $this->assertTrue(TestHelper::invoke($this->object, 'methodName', 123));
      * where 123 is the input parameter for your method
      *
-     * @param   object  $object         The object on which to invoke the method.
-     * @param   string  $methodName     The name of the method to invoke.
-     * @param   array   ...$methodArgs  The arguments to pass forward to the method being called
+     * @param   object|string  $object         The object on which to invoke the method, or the class name for a static method.
+     * @param   string         $methodName     The name of the method to invoke.
+     * @param   mixed          ...$methodArgs  The arguments to pass forward to the method being called
      *
      * @return  mixed
      *
      * @since   1.0
      * @throws  \ReflectionException
      */
-    public static function invoke($object, $methodName, ...$methodArgs)
+    public static function invoke(object|string $object, string $methodName, mixed ...$methodArgs): mixed
     {
         $method = new \ReflectionMethod($object, $methodName);
 
@@ -88,7 +88,7 @@ class TestHelper
      * @throws  \InvalidArgumentException if property not available.
      * @throws  \ReflectionException if the class does not exist.
      */
-    public static function setValue($object, $propertyName, $value)
+    public static function setValue(object $object, string $propertyName, mixed $value): void
     {
         self::findProperty($object, $propertyName)->setValue($object, $value);
     }
@@ -107,7 +107,7 @@ class TestHelper
      * @throws  \InvalidArgumentException if property not available.
      * @throws  \ReflectionException if the class does not exist.
      */
-    private static function findProperty($objectOrClass, string $propertyName): \ReflectionProperty
+    private static function findProperty(object|string $objectOrClass, string $propertyName): \ReflectionProperty
     {
         $refl = new \ReflectionClass($objectOrClass);
 
