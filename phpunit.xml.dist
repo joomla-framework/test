@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="vendor/autoload.php" colors="false">
+	<php>
+		<!-- The package's own database tests run against an in-memory SQLite database -->
+		<env name="JOOMLA_TEST_DB_DRIVER" value="sqlite" />
+		<env name="JOOMLA_TEST_DB_DATABASE" value=":memory:" />
+	</php>
+	<testsuites>
+		<testsuite name="Unit">
+			<directory>Tests</directory>
+		</testsuite>
+	</testsuites>
+</phpunit>
