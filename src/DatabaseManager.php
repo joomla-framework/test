@@ -13,6 +13,7 @@ use Joomla\Database\DatabaseFactory;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Database\Exception\ExecutionFailureException;
 use Joomla\Test\Exception\DatabaseConnectionNotInitialised;
+use Joomla\Test\Exception\DestructiveOperationNotAllowed;
 use Joomla\Test\Exception\MissingDatabaseCredentials;
 
 /**
@@ -67,6 +68,7 @@ class DatabaseManager
      *
      * @since   2.0.0
      * @throws  DatabaseConnectionNotInitialised
+     * @throws  DestructiveOperationNotAllowed
      */
     public function clearTables(): void
     {
@@ -78,6 +80,8 @@ class DatabaseManager
                 )
             );
         }
+
+        $this->checkDestructiveOperation(__FUNCTION__);
 
         foreach ($this->connection->getTableList() as $table) {
             $this->connection->truncateTable($table);
@@ -137,6 +141,7 @@ class DatabaseManager
      * @since   2.0.0
      *
      * @throws  DatabaseConnectionNotInitialised
+     * @throws  DestructiveOperationNotAllowed
      * @throws  ExecutionFailureException
      */
     public function dropDatabase(): void
@@ -159,6 +164,8 @@ class DatabaseManager
         if ($this->connection->getServerType() === 'sqlite') {
             return;
         }
+
+        $this->checkDestructiveOperation(__FUNCTION__);
 
         // For SQL Server, we need to switch to another context first
         if ($this->connection->getServerType() === 'mssql') {
@@ -220,6 +227,83 @@ class DatabaseManager
         }
 
         return $this->params['database'];
+    }
+
+    /**
+     * Returns the properties to show when the object is dumped, with the database password masked
+     *
+     * The connection is reduced to its class name because the driver keeps the password in its options.
+     *
+     * @return  array
+     *
+     * @since   __DEPLOY_VERSION__
+     */
+    public function __debugInfo(): array
+    {
+        $params = $this->params;
+
+        if (!empty($params['password'])) {
+            $params['password'] = '********';
+        }
+
+        return [
+            'connection' => $this->connection === null ? null : \get_class($this->connection),
+            'dbFactory'  => $this->dbFactory,
+            'params'     => $params,
+        ];
+    }
+
+    /**
+     * Checks whether the database may be dropped or emptied
+     *
+     * Destructive operations are allowed on an in-memory SQLite database, on a database whose name contains "test",
+     * or when the JOOMLA_TEST_DB_ALLOW_DESTRUCTIVE environment variable is set to "yes". Otherwise, the operation is
+     * refused.
+     *
+     * @param   string  $operation  The name of the method about to destroy data.
+     *
+     * @return  void
+     *
+     * @since   __DEPLOY_VERSION__
+     * @throws  DestructiveOperationNotAllowed
+     */
+    protected function checkDestructiveOperation(string $operation): void
+    {
+        if ($this->isTestDatabase() || getenv('JOOMLA_TEST_DB_ALLOW_DESTRUCTIVE') === 'yes') {
+            return;
+        }
+
+        throw new DestructiveOperationNotAllowed(
+            sprintf(
+                '%1$s::%2$s() refuses to destroy data in the database "%3$s", whose name does not look like a test database.'
+                . ' Use a database name containing "test" or set the environment variable JOOMLA_TEST_DB_ALLOW_DESTRUCTIVE=yes'
+                . ' to confirm.',
+                static::class,
+                $operation,
+                $this->getDbName()
+            )
+        );
+    }
+
+    /**
+     * Checks whether the configured database is recognisably a test database
+     *
+     * This is the case for an in-memory SQLite database and for a database whose name contains "test" (case-insensitive).
+     * Extend this method if your test databases follow a different naming scheme.
+     *
+     * @return  boolean
+     *
+     * @since   __DEPLOY_VERSION__
+     */
+    protected function isTestDatabase(): bool
+    {
+        $database = $this->getDbName();
+
+        if ($database === ':memory:' && ($this->params['driver'] ?? null) === 'sqlite') {
+            return true;
+        }
+
+        return stripos($database, 'test') !== false;
     }
 
     /**

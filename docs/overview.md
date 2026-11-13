@@ -155,3 +155,53 @@ class FooTest extends \PHPUnit_Framework_TestCase
 	}
 }
 ```
+
+## DatabaseTestCase
+
+`Joomla\Test\DatabaseTestCase` is a base class for PHPUnit tests that need a database connection. It requires
+`joomla/database`. Before the first test of a class, it drops and recreates the configured database and selects it;
+after the last test, it drops the database again. The connection is available as `static::$connection`.
+
+```php
+use Joomla\Test\DatabaseTestCase;
+
+class ArticleModelTest extends DatabaseTestCase
+{
+	public function testLoad()
+	{
+		$model = new ArticleModel(static::$connection);
+
+		// ...
+	}
+}
+```
+
+The connection is built by `Joomla\Test\DatabaseManager` from these environment variables, which you can set in
+your `phpunit.xml` with `<env>` elements:
+
+| Variable | Default | Description |
+|---|---|---|
+| `JOOMLA_TEST_DB_DRIVER` | `sqlite` | The database driver, e.g. `mysqli`, `mysql`, `pgsql`, `sqlsrv` |
+| `JOOMLA_TEST_DB_HOST` | | The database host; required for every driver except SQLite with `:memory:` |
+| `JOOMLA_TEST_DB_PORT` | | The database port |
+| `JOOMLA_TEST_DB_USER` | | The database user; required for every driver except SQLite with `:memory:` |
+| `JOOMLA_TEST_DB_PASSWORD` | | The database password |
+| `JOOMLA_TEST_DB_DATABASE` | `:memory:` | The name of the test database |
+| `JOOMLA_TEST_DB_PREFIX` | | The table prefix |
+| `JOOMLA_TEST_DB_SELECT` | | `yes` to connect to an existing database; it is then neither dropped nor recreated |
+| `JOOMLA_TEST_DB_ALLOW_DESTRUCTIVE` | | `yes` to confirm that the database may be dropped and emptied although its name does not contain "test" |
+
+If the host or user is missing, the tests are skipped. To build the connection differently, extend
+`DatabaseManager` and override `DatabaseTestCase::createDatabaseManager()`.
+
+### Protection against dropping a real database
+
+**The configured database is dropped and recreated for every test class.** `DatabaseManager::dropDatabase()` and
+`DatabaseManager::clearTables()` therefore check that the database is recognisably a test database: an in-memory
+SQLite database, or a database whose name contains "test" (case-insensitive). For any other database they throw a
+`Joomla\Test\Exception\DestructiveOperationNotAllowed` exception that names the database, and leave it untouched.
+Use a database name containing "test", set `JOOMLA_TEST_DB_ALLOW_DESTRUCTIVE=yes`, or override
+`DatabaseManager::isTestDatabase()` if your test databases follow a different naming scheme.
+
+When a `DatabaseManager` is dumped with `var_dump()` or `print_r()`, the database password is masked and the
+connection is shown by its class name only.
