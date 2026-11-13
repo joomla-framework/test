@@ -113,6 +113,26 @@ class DatabaseManagerTest extends TestCase
         (new DatabaseManager())->getConnection();
     }
 
+    public function testSqliteFileDatabasesNeedNoHostAndUser(): void
+    {
+        $file = sys_get_temp_dir() . '/joomla_test_' . bin2hex(random_bytes(4)) . '.sqlite';
+
+        putenv('JOOMLA_TEST_DB_DRIVER=sqlite');
+        putenv('JOOMLA_TEST_DB_DATABASE=' . $file);
+
+        try {
+            $manager    = new DatabaseManager();
+            $connection = $manager->getConnection();
+            $connection->setQuery('CREATE TABLE ' . $connection->quoteName('foo') . ' (id INTEGER)')->execute();
+
+            $this->assertSame($file, $manager->getDbName());
+            $this->assertFileExists($file);
+        } finally {
+            // On Windows, the driver may keep the file open until the process ends, so this is best effort
+            @unlink($file);
+        }
+    }
+
     public function testClearTablesEmptiesEveryTable(): void
     {
         $manager    = new DatabaseManager();

@@ -186,11 +186,11 @@ your `phpunit.xml` with `<env>` elements:
 | Variable | Default | Description |
 |---|---|---|
 | `JOOMLA_TEST_DB_DRIVER` | `sqlite` | The database driver, e.g. `mysqli`, `mysql`, `pgsql`, `sqlsrv` |
-| `JOOMLA_TEST_DB_HOST` | | The database host; required for every driver except SQLite with `:memory:` |
+| `JOOMLA_TEST_DB_HOST` | | The database host; required for every driver except SQLite |
 | `JOOMLA_TEST_DB_PORT` | | The database port |
-| `JOOMLA_TEST_DB_USER` | | The database user; required for every driver except SQLite with `:memory:` |
+| `JOOMLA_TEST_DB_USER` | | The database user; required for every driver except SQLite |
 | `JOOMLA_TEST_DB_PASSWORD` | | The database password |
-| `JOOMLA_TEST_DB_DATABASE` | `:memory:` | The name of the test database |
+| `JOOMLA_TEST_DB_DATABASE` | `:memory:` | The name of the test database; for SQLite `:memory:` or the path of the database file |
 | `JOOMLA_TEST_DB_PREFIX` | | The table prefix |
 | `JOOMLA_TEST_DB_SELECT` | | `yes` to connect to an existing database; it is then neither dropped nor recreated |
 | `JOOMLA_TEST_DB_ALLOW_DESTRUCTIVE` | | `yes` to confirm that the database may be dropped and emptied although its name does not contain "test" |

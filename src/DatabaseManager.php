@@ -351,8 +351,8 @@ class DatabaseManager
 
         unset($params['driver']);
 
-        // Only pass the database name if the select param is set to true
-        if (!$params['select']) {
+        // Only pass the database name if the select param is set to true; SQLite always needs it, as it names the file to open
+        if (!$params['select'] && $driver !== 'sqlite') {
             unset($params['database']);
         }
 
@@ -379,17 +379,9 @@ class DatabaseManager
             $prefix   = getenv('JOOMLA_TEST_DB_PREFIX') ?: '';
             $select   = getenv('JOOMLA_TEST_DB_SELECT') === 'yes';
 
-            // If using the SQLite driver and an in memory database, only the database is necessary, otherwise we need a host and user
-            if ($driver === 'sqlite') {
-                if ($database === ':memory:') {
-                    // Everything is good
-                } elseif (empty($host) || empty($user)) {
-                    throw new MissingDatabaseCredentials();
-                }
-            } else {
-                if (empty($host) || empty($user)) {
-                    throw new MissingDatabaseCredentials();
-                }
+            // SQLite only needs the database (in memory or a file path), every other driver needs a host and user
+            if ($driver !== 'sqlite' && (empty($host) || empty($user))) {
+                throw new MissingDatabaseCredentials();
             }
 
             $this->params = [
