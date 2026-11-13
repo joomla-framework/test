@@ -79,6 +79,8 @@ class DatabaseManager
             );
         }
 
+        $this->checkDestructiveOperation(__FUNCTION__);
+
         foreach ($this->connection->getTableList() as $table) {
             $this->connection->truncateTable($table);
         }
@@ -113,20 +115,61 @@ class DatabaseManager
                 ]
             );
         } catch (ExecutionFailureException $exception) {
-            $stringsToCheck = [
-                sprintf("Can't create database '%s'; database exists", $this->getDbName()),
-                sprintf('database "%s" already exists', $this->getDbName()),
-            ];
-
-            foreach ($stringsToCheck as $stringToCheck) {
-                // If database exists, we're good
-                if (strpos($exception->getMessage(), $stringToCheck) !== false) {
-                    return;
-                }
+            // If database exists, we're good
+            if ($this->isDatabaseExistsError($exception)) {
+                return;
             }
 
             throw $exception;
         }
+    }
+
+    /**
+     * Checks whether a failed CREATE DATABASE query failed because the database already exists
+     *
+     * The error messages are localised by the database servers, so the driver error codes are compared.
+     *
+     * @param   ExecutionFailureException  $exception  The exception thrown by the query.
+     *
+     * @return  boolean
+     *
+     * @since   __DEPLOY_VERSION__
+     */
+    private function isDatabaseExistsError(ExecutionFailureException $exception): bool
+    {
+        $serverType = $this->connection->getServerType();
+
+        // MySQLi and SQL Server report the server's error number as exception code
+        if (
+            ($serverType === 'mysql' && (int) $exception->getCode() === 1007)
+            || ($serverType === 'mssql' && (int) $exception->getCode() === 1801)
+        ) {
+            return true;
+        }
+
+        // PDO drivers report "<SQLSTATE>, <driver error code>, <message>": SQLSTATE 42P04 for PostgreSQL, error 1007 for MySQL
+        $errorInfo = explode(', ', $exception->getMessage(), 3);
+
+        if (
+            ($serverType === 'postgresql' && $errorInfo[0] === '42P04')
+            || ($serverType === 'mysql' && ($errorInfo[1] ?? '') === '1007')
+        ) {
+            return true;
+        }
+
+        // Fall back to the English message texts
+        $stringsToCheck = [
+            sprintf("Can't create database '%s'; database exists", $this->getDbName()),
+            sprintf('database "%s" already exists', $this->getDbName()),
+        ];
+
+        foreach ($stringsToCheck as $stringToCheck) {
+            if (strpos($exception->getMessage(), $stringToCheck) !== false) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -160,28 +203,22 @@ class DatabaseManager
             return;
         }
 
-        // For SQL Server, we need to switch to another context first
+        $this->checkDestructiveOperation(__FUNCTION__);
+
+        $dbName = $this->getDbName();
+
         if ($this->connection->getServerType() === 'mssql') {
+            // For SQL Server, we need to switch to another context first
             $this->connection->setQuery('USE [master]')->execute();
+
+            // DROP DATABASE IF EXISTS needs SQL Server 2016
+            $query = 'IF DB_ID(' . $this->connection->quote($dbName) . ') IS NOT NULL DROP DATABASE '
+                . $this->connection->quoteName($dbName);
+        } else {
+            $query = 'DROP DATABASE IF EXISTS ' . $this->connection->quoteName($dbName);
         }
 
-        try {
-            $this->connection->setQuery('DROP DATABASE ' . $this->connection->quoteName($this->getDbName()))->execute();
-        } catch (ExecutionFailureException $exception) {
-            $stringsToCheck = [
-                sprintf("Can't drop database '%s'; database doesn't exist", $this->getDbName()),
-                sprintf("Cannot drop the database '%s', because it does not exist", $this->getDbName()),
-            ];
-
-            foreach ($stringsToCheck as $stringToCheck) {
-                // If database exists, we're good
-                if (strpos($exception->getMessage(), $stringToCheck) !== false) {
-                    return;
-                }
-            }
-
-            throw $exception;
-        }
+        $this->connection->setQuery($query)->execute();
     }
 
     /**
@@ -223,6 +260,83 @@ class DatabaseManager
     }
 
     /**
+     * Returns the properties to show when the object is dumped, with the database password masked
+     *
+     * The connection is reduced to its class name because the driver keeps the password in its options.
+     *
+     * @return  array
+     *
+     * @since   __DEPLOY_VERSION__
+     */
+    public function __debugInfo(): array
+    {
+        $params = $this->params;
+
+        if (!empty($params['password'])) {
+            $params['password'] = '********';
+        }
+
+        return [
+            'connection' => $this->connection === null ? null : \get_class($this->connection),
+            'dbFactory'  => $this->dbFactory,
+            'params'     => $params,
+        ];
+    }
+
+    /**
+     * Checks whether the database may be dropped or emptied
+     *
+     * Destructive operations are allowed on an in-memory SQLite database, on a database whose name contains "test",
+     * or when the JOOMLA_TEST_DB_ALLOW_DESTRUCTIVE environment variable is set to "yes". Otherwise, a deprecation
+     * notice is triggered; starting with 5.0 the operation will be refused.
+     *
+     * @param   string  $operation  The name of the method about to destroy data.
+     *
+     * @return  void
+     *
+     * @since   __DEPLOY_VERSION__
+     */
+    protected function checkDestructiveOperation(string $operation): void
+    {
+        if ($this->isTestDatabase() || getenv('JOOMLA_TEST_DB_ALLOW_DESTRUCTIVE') === 'yes') {
+            return;
+        }
+
+        trigger_error(
+            sprintf(
+                '%1$s::%2$s() is destroying data in the database "%3$s", whose name does not look like a test database.'
+                . ' Use a database name containing "test" or set the environment variable JOOMLA_TEST_DB_ALLOW_DESTRUCTIVE=yes'
+                . ' to confirm. Starting with 5.0, %2$s() will refuse to run on this database.',
+                static::class,
+                $operation,
+                $this->getDbName()
+            ),
+            E_USER_DEPRECATED
+        );
+    }
+
+    /**
+     * Checks whether the configured database is recognisably a test database
+     *
+     * This is the case for an in-memory SQLite database and for a database whose name contains "test" (case-insensitive).
+     * Extend this method if your test databases follow a different naming scheme.
+     *
+     * @return  boolean
+     *
+     * @since   __DEPLOY_VERSION__
+     */
+    protected function isTestDatabase(): bool
+    {
+        $database = $this->getDbName();
+
+        if ($database === ':memory:' && ($this->params['driver'] ?? null) === 'sqlite') {
+            return true;
+        }
+
+        return stripos($database, 'test') !== false;
+    }
+
+    /**
      * Create the DatabaseDriver object
      *
      * @return  void
@@ -237,8 +351,8 @@ class DatabaseManager
 
         unset($params['driver']);
 
-        // Only pass the database name if the select param is set to true
-        if (!$params['select']) {
+        // Only pass the database name if the select param is set to true; SQLite always needs it, as it names the file to open
+        if (!$params['select'] && $driver !== 'sqlite') {
             unset($params['database']);
         }
 
@@ -265,17 +379,9 @@ class DatabaseManager
             $prefix   = getenv('JOOMLA_TEST_DB_PREFIX') ?: '';
             $select   = getenv('JOOMLA_TEST_DB_SELECT') === 'yes';
 
-            // If using the SQLite driver and an in memory database, only the database is necessary, otherwise we need a host and user
-            if ($driver === 'sqlite') {
-                if ($database === ':memory:') {
-                    // Everything is good
-                } elseif (empty($host) || empty($user)) {
-                    throw new MissingDatabaseCredentials();
-                }
-            } else {
-                if (empty($host) || empty($user)) {
-                    throw new MissingDatabaseCredentials();
-                }
+            // SQLite only needs the database (in memory or a file path), every other driver needs a host and user
+            if ($driver !== 'sqlite' && (empty($host) || empty($user))) {
+                throw new MissingDatabaseCredentials();
             }
 
             $this->params = [
