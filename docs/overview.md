@@ -1,5 +1,15 @@
 # Test package
 
+## Requirements
+
+The package itself has no dependencies. `TestHelper` only uses PHP's reflection and works with any test framework.
+`DatabaseTestCase` extends PHPUnit's `TestCase` and builds its connection with `joomla/database`, so both are needed to
+use it. They are suggested rather than required by the package; add them to your project's development dependencies:
+
+```sh
+composer require --dev joomla/test phpunit/phpunit joomla/database
+```
+
 ## TestHelper
 
 `Joomla\Test\TestHelper` is a static helper class that can be used to take some of the pain out of repetitive tasks whilst unit testing with PHPUnit.

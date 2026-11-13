@@ -9,8 +9,6 @@
 
 namespace Joomla\Test;
 
-use PHPUnit\Framework\TestCase;
-
 /**
  * Static helper methods to assist unit testing PHP code.
  *
