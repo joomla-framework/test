@@ -162,6 +162,10 @@ class FooTest extends \PHPUnit_Framework_TestCase
 `joomla/database`. Before the first test of a class, it drops and recreates the configured database and selects it;
 after the last test, it drops the database again. The connection is available as `static::$connection`.
 
+`DatabaseManager::dropDatabase()` does nothing if the database does not exist (`DROP DATABASE IF EXISTS`; on SQL Server
+a `DB_ID()` check), and `DatabaseManager::createDatabase()` accepts a database that already exists. Both work
+regardless of the language the database server reports its errors in.
+
 ```php
 use Joomla\Test\DatabaseTestCase;
 

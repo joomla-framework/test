@@ -115,20 +115,61 @@ class DatabaseManager
                 ]
             );
         } catch (ExecutionFailureException $exception) {
-            $stringsToCheck = [
-                sprintf("Can't create database '%s'; database exists", $this->getDbName()),
-                sprintf('database "%s" already exists', $this->getDbName()),
-            ];
-
-            foreach ($stringsToCheck as $stringToCheck) {
-                // If database exists, we're good
-                if (strpos($exception->getMessage(), $stringToCheck) !== false) {
-                    return;
-                }
+            // If database exists, we're good
+            if ($this->isDatabaseExistsError($exception)) {
+                return;
             }
 
             throw $exception;
         }
+    }
+
+    /**
+     * Checks whether a failed CREATE DATABASE query failed because the database already exists
+     *
+     * The error messages are localised by the database servers, so the driver error codes are compared.
+     *
+     * @param   ExecutionFailureException  $exception  The exception thrown by the query.
+     *
+     * @return  boolean
+     *
+     * @since   __DEPLOY_VERSION__
+     */
+    private function isDatabaseExistsError(ExecutionFailureException $exception): bool
+    {
+        $serverType = $this->connection->getServerType();
+
+        // MySQLi and SQL Server report the server's error number as exception code
+        if (
+            ($serverType === 'mysql' && (int) $exception->getCode() === 1007)
+            || ($serverType === 'mssql' && (int) $exception->getCode() === 1801)
+        ) {
+            return true;
+        }
+
+        // PDO drivers report "<SQLSTATE>, <driver error code>, <message>": SQLSTATE 42P04 for PostgreSQL, error 1007 for MySQL
+        $errorInfo = explode(', ', $exception->getMessage(), 3);
+
+        if (
+            ($serverType === 'postgresql' && $errorInfo[0] === '42P04')
+            || ($serverType === 'mysql' && ($errorInfo[1] ?? '') === '1007')
+        ) {
+            return true;
+        }
+
+        // Fall back to the English message texts
+        $stringsToCheck = [
+            sprintf("Can't create database '%s'; database exists", $this->getDbName()),
+            sprintf('database "%s" already exists', $this->getDbName()),
+        ];
+
+        foreach ($stringsToCheck as $stringToCheck) {
+            if (strpos($exception->getMessage(), $stringToCheck) !== false) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -164,28 +205,20 @@ class DatabaseManager
 
         $this->checkDestructiveOperation(__FUNCTION__);
 
-        // For SQL Server, we need to switch to another context first
+        $dbName = $this->getDbName();
+
         if ($this->connection->getServerType() === 'mssql') {
+            // For SQL Server, we need to switch to another context first
             $this->connection->setQuery('USE [master]')->execute();
+
+            // DROP DATABASE IF EXISTS needs SQL Server 2016
+            $query = 'IF DB_ID(' . $this->connection->quote($dbName) . ') IS NOT NULL DROP DATABASE '
+                . $this->connection->quoteName($dbName);
+        } else {
+            $query = 'DROP DATABASE IF EXISTS ' . $this->connection->quoteName($dbName);
         }
 
-        try {
-            $this->connection->setQuery('DROP DATABASE ' . $this->connection->quoteName($this->getDbName()))->execute();
-        } catch (ExecutionFailureException $exception) {
-            $stringsToCheck = [
-                sprintf("Can't drop database '%s'; database doesn't exist", $this->getDbName()),
-                sprintf("Cannot drop the database '%s', because it does not exist", $this->getDbName()),
-            ];
-
-            foreach ($stringsToCheck as $stringToCheck) {
-                // If database exists, we're good
-                if (strpos($exception->getMessage(), $stringToCheck) !== false) {
-                    return;
-                }
-            }
-
-            throw $exception;
-        }
+        $this->connection->setQuery($query)->execute();
     }
 
     /**

@@ -8,10 +8,13 @@
 namespace Joomla\Test\Tests;
 
 use Joomla\Database\DatabaseInterface;
+use Joomla\Database\Exception\ExecutionFailureException;
 use Joomla\Test\DatabaseManager;
 use Joomla\Test\Exception\DatabaseConnectionNotInitialised;
 use Joomla\Test\Exception\MissingDatabaseCredentials;
 use Joomla\Test\Tests\Stubs\PresetDatabaseManager;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -187,17 +190,76 @@ class DatabaseManagerTest extends TestCase
         $this->assertStringContainsString('joomla_test', $dump);
     }
 
+    public static function dropDatabaseQueries(): \Generator
+    {
+        yield 'MySQL' => ['mysql', ['DROP DATABASE IF EXISTS `joomla_test`']];
+        yield 'PostgreSQL' => ['postgresql', ['DROP DATABASE IF EXISTS "joomla_test"']];
+        yield 'SQL Server' => ['mssql', ['USE [master]', "IF DB_ID(N'joomla_test') IS NOT NULL DROP DATABASE [joomla_test]"]];
+    }
+
+    #[DataProvider('dropDatabaseQueries')]
+    public function testDropDatabaseDoesNotFailWhenTheDatabaseDoesNotExist(string $serverType, array $expectedQueries): void
+    {
+        $queries = [];
+        $manager = new PresetDatabaseManager([], $this->createServerConnection($queries, $serverType));
+
+        $manager->dropDatabase();
+
+        $this->assertSame($expectedQueries, $queries);
+    }
+
+    public static function databaseExistsErrors(): \Generator
+    {
+        // Messages as reported with a German server locale
+        yield 'MySQLi' => ['mysql', "Kann Datenbank 'joomla_test' nicht erzeugen. Datenbank existiert bereits", 1007];
+        yield 'PDO MySQL' => ['mysql', "HY000, 1007, Kann Datenbank 'joomla_test' nicht erzeugen. Datenbank existiert bereits", 0];
+        yield 'PDO PostgreSQL' => ['postgresql', '42P04, 7, FEHLER:  Datenbank »joomla_test« existiert bereits', 42];
+        yield 'SQL Server' => ['mssql', "Die Datenbank 'joomla_test' ist bereits vorhanden.", 1801];
+
+        // English messages
+        yield 'MySQLi, English' => ['mysql', "Can't create database 'joomla_test'; database exists", 1007];
+        yield 'PDO PostgreSQL, English' => ['postgresql', '42P04, 7, ERROR:  database "joomla_test" already exists', 42];
+    }
+
+    #[DataProvider('databaseExistsErrors')]
+    public function testCreateDatabaseIgnoresThatTheDatabaseExists(string $serverType, string $message, int $code): void
+    {
+        $queries    = [];
+        $connection = $this->createServerConnection($queries, $serverType);
+        $connection->expects($this->once())
+            ->method('createDatabase')
+            ->willThrowException(new ExecutionFailureException('CREATE DATABASE joomla_test', $message, $code));
+
+        (new PresetDatabaseManager([], $connection))->createDatabase();
+    }
+
+    public function testCreateDatabaseRethrowsOtherErrors(): void
+    {
+        $queries    = [];
+        $connection = $this->createServerConnection($queries);
+        $connection->method('createDatabase')
+            ->willThrowException(new ExecutionFailureException('CREATE DATABASE joomla_test', "Access denied for user 'joomla'@'localhost' to database 'joomla_test'", 1044));
+
+        $this->expectException(ExecutionFailureException::class);
+        $this->expectExceptionMessage('Access denied');
+
+        (new PresetDatabaseManager([], $connection))->createDatabase();
+    }
+
     /**
      * Creates a connection mock for a database server that records the executed queries
      *
      * @param   string[]  $queries  Receives the executed queries
      */
-    private function createServerConnection(array &$queries): DatabaseInterface
+    private function createServerConnection(array &$queries, string $serverType = 'mysql'): DatabaseInterface&MockObject
     {
+        $quotes = ['mysql' => ['`', '`'], 'postgresql' => ['"', '"'], 'mssql' => ['[', ']']][$serverType];
+
         $connection = $this->createMock(DatabaseInterface::class);
-        $connection->method('getServerType')->willReturn('mysql');
+        $connection->method('getServerType')->willReturn($serverType);
         $connection->method('getTableList')->willReturn([]);
-        $connection->method('quoteName')->willReturnCallback(fn ($name) => '`' . $name . '`');
+        $connection->method('quote')->willReturnCallback(fn ($text) => ($serverType === 'mssql' ? 'N' : '') . "'" . $text . "'");
+        $connection->method('quoteName')->willReturnCallback(fn ($name) => $quotes[0] . $name . $quotes[1]);
         $connection->method('setQuery')->willReturnCallback(
             function ($query) use (&$queries, $connection) {
                 $queries[] = $query;
