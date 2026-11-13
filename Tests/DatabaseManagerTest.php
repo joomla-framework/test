@@ -10,6 +10,7 @@ namespace Joomla\Test\Tests;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Test\DatabaseManager;
 use Joomla\Test\Exception\DatabaseConnectionNotInitialised;
+use Joomla\Test\Exception\DestructiveOperationNotAllowed;
 use Joomla\Test\Exception\MissingDatabaseCredentials;
 use Joomla\Test\Tests\Stubs\PresetDatabaseManager;
 use PHPUnit\Framework\TestCase;
@@ -123,17 +124,20 @@ class DatabaseManagerTest extends TestCase
         $this->assertSame(0, (int) $connection->setQuery('SELECT COUNT(*) FROM ' . $connection->quoteName('foo'))->loadResult());
     }
 
-    public function testDropDatabaseWarnsBeforeDroppingADatabaseThatDoesNotLookLikeATestDatabase(): void
+    public function testDropDatabaseRefusesToDropADatabaseThatDoesNotLookLikeATestDatabase(): void
     {
         $queries = [];
         $manager = new PresetDatabaseManager(['database' => 'production'], $this->createServerConnection($queries));
 
-        $deprecations = $this->collectDeprecations(fn () => $manager->dropDatabase());
+        try {
+            $manager->dropDatabase();
+            $this->fail('dropDatabase() should refuse to drop "production"');
+        } catch (DestructiveOperationNotAllowed $exception) {
+            $this->assertStringContainsString('dropDatabase() refuses to destroy data in the database "production"', $exception->getMessage());
+            $this->assertStringContainsString('JOOMLA_TEST_DB_ALLOW_DESTRUCTIVE=yes', $exception->getMessage());
+        }
 
-        $this->assertCount(1, $deprecations);
-        $this->assertStringContainsString('dropDatabase() is destroying data in the database "production"', $deprecations[0]);
-        $this->assertStringContainsString('JOOMLA_TEST_DB_ALLOW_DESTRUCTIVE=yes', $deprecations[0]);
-        $this->assertCount(1, $queries, 'The database is still dropped in 4.x');
+        $this->assertSame([], $queries, 'No query is executed');
     }
 
     public function testDropDatabaseDoesNotWarnForATestDatabase(): void
@@ -156,15 +160,16 @@ class DatabaseManagerTest extends TestCase
         $this->assertSame([], $this->collectDeprecations(fn () => $manager->clearTables()));
     }
 
-    public function testClearTablesWarnsBeforeEmptyingADatabaseThatDoesNotLookLikeATestDatabase(): void
+    public function testClearTablesRefusesToEmptyADatabaseThatDoesNotLookLikeATestDatabase(): void
     {
-        $queries = [];
-        $manager = new PresetDatabaseManager(['database' => 'production'], $this->createServerConnection($queries));
+        $queries    = [];
+        $connection = $this->createServerConnection($queries);
+        $connection->expects($this->never())->method('truncateTable');
 
-        $deprecations = $this->collectDeprecations(fn () => $manager->clearTables());
+        $this->expectException(DestructiveOperationNotAllowed::class);
+        $this->expectExceptionMessage('clearTables() refuses to destroy data in the database "production"');
 
-        $this->assertCount(1, $deprecations);
-        $this->assertStringContainsString('clearTables() is destroying data in the database "production"', $deprecations[0]);
+        (new PresetDatabaseManager(['database' => 'production'], $connection))->clearTables();
     }
 
     public function testClearTablesDoesNotWarnForAnInMemorySqliteDatabase(): void

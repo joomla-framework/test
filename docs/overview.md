@@ -198,8 +198,8 @@ If the host or user is missing, the tests are skipped. To build the connection d
 
 **The configured database is dropped and recreated for every test class.** `DatabaseManager::dropDatabase()` and
 `DatabaseManager::clearTables()` therefore check that the database is recognisably a test database: an in-memory
-SQLite database, or a database whose name contains "test" (case-insensitive). For any other database they trigger
-an `E_USER_DEPRECATED` notice that names the database before going ahead; starting with 5.0 they will refuse to run.
+SQLite database, or a database whose name contains "test" (case-insensitive). For any other database they throw a
+`Joomla\Test\Exception\DestructiveOperationNotAllowed` exception that names the database, and leave it untouched.
 Use a database name containing "test", set `JOOMLA_TEST_DB_ALLOW_DESTRUCTIVE=yes`, or override
 `DatabaseManager::isTestDatabase()` if your test databases follow a different naming scheme.
 

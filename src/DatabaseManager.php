@@ -13,6 +13,7 @@ use Joomla\Database\DatabaseFactory;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Database\Exception\ExecutionFailureException;
 use Joomla\Test\Exception\DatabaseConnectionNotInitialised;
+use Joomla\Test\Exception\DestructiveOperationNotAllowed;
 use Joomla\Test\Exception\MissingDatabaseCredentials;
 
 /**
@@ -67,6 +68,7 @@ class DatabaseManager
      *
      * @since   2.0.0
      * @throws  DatabaseConnectionNotInitialised
+     * @throws  DestructiveOperationNotAllowed
      */
     public function clearTables(): void
     {
@@ -139,6 +141,7 @@ class DatabaseManager
      * @since   2.0.0
      *
      * @throws  DatabaseConnectionNotInitialised
+     * @throws  DestructiveOperationNotAllowed
      * @throws  ExecutionFailureException
      */
     public function dropDatabase(): void
@@ -254,14 +257,15 @@ class DatabaseManager
      * Checks whether the database may be dropped or emptied
      *
      * Destructive operations are allowed on an in-memory SQLite database, on a database whose name contains "test",
-     * or when the JOOMLA_TEST_DB_ALLOW_DESTRUCTIVE environment variable is set to "yes". Otherwise, a deprecation
-     * notice is triggered; starting with 5.0 the operation will be refused.
+     * or when the JOOMLA_TEST_DB_ALLOW_DESTRUCTIVE environment variable is set to "yes". Otherwise, the operation is
+     * refused.
      *
      * @param   string  $operation  The name of the method about to destroy data.
      *
      * @return  void
      *
      * @since   __DEPLOY_VERSION__
+     * @throws  DestructiveOperationNotAllowed
      */
     protected function checkDestructiveOperation(string $operation): void
     {
@@ -269,16 +273,15 @@ class DatabaseManager
             return;
         }
 
-        trigger_error(
+        throw new DestructiveOperationNotAllowed(
             sprintf(
-                '%1$s::%2$s() is destroying data in the database "%3$s", whose name does not look like a test database.'
+                '%1$s::%2$s() refuses to destroy data in the database "%3$s", whose name does not look like a test database.'
                 . ' Use a database name containing "test" or set the environment variable JOOMLA_TEST_DB_ALLOW_DESTRUCTIVE=yes'
-                . ' to confirm. Starting with 5.0, %2$s() will refuse to run on this database.',
+                . ' to confirm.',
                 static::class,
                 $operation,
                 $this->getDbName()
-            ),
-            E_USER_DEPRECATED
+            )
         );
     }
 
