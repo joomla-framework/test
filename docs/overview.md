@@ -94,6 +94,10 @@ There are three methods that help with reflection.
 
 The `TestHelper::getValue` method allows you to get the value of any protected or private property.
 
+The property is searched in the class of the object and in all its parent classes, so private properties of a parent
+class can be read too. To read a static property, you can pass the class name instead of an object. If the property
+does not exist, or a class name is given for a property that is not static, an `\InvalidArgumentException` is thrown.
+
 ```php
 use Joomla\Test\TestHelper;
 
@@ -116,6 +120,9 @@ This method should be used sparingly. It is usually more appropriate to use PHPu
 
 The `TestHelper::setValue` method allows you to set the value of any protected or private property.
 
+Like `TestHelper::getValue`, it searches the class of the object and all its parent classes, and throws an
+`\InvalidArgumentException` if the property does not exist.
+
 ```php
 use Joomla\Test\TestHelper;
 
@@ -137,6 +144,8 @@ This method is useful for injecting values into an object for the purpose of tes
 #### `TestHelper::invoke`
 
 The `TestHelper::invoke` method allow you to invoke any protected or private method. After specifying the object and the method name, any remaining arguments are passed to the method being invoked.
+
+To invoke a static method, pass the class name instead of an object.
 
 ```php
 use Joomla\Test\TestHelper;
